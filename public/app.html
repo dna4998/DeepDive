@@ -157,13 +157,13 @@ function DeepDive() {
     const savedEmail = localStorage.getItem("deepdive-email");
     if (savedEmail) { setUserEmail(savedEmail); verifyPremium(savedEmail); }
     const params = new URLSearchParams(window.location.search);
-    const sid = params.get("session_id");
-    if (sid) { verifyCheckout(sid); window.history.replaceState({}, "", "/app.html");
-    }
-    if (params.get("success") === "true" && !sessionId) { setShowSuccess(true); setTimeout(() => setShowSuccess(false), 5000); }
-    if (params.get("upgrade") === "true") {
-      setShowPaywall(true);
-      window.history.replaceState({}, "", "/app.html"); }
+    try {
+      const sid = params.get("session_id");
+      if (sid) { verifyCheckout(sid); }
+      if (params.get("success") === "true") { setIsPremium(true); setShowSuccess(true); setTimeout(() => setShowSuccess(false), 6000); }
+      if (params.get("upgrade") === "true") { setShowPaywall(true); }
+      if (sid || params.get("success") || params.get("upgrade")) { window.history.replaceState({}, "", "/app.html"); }
+    } catch(e) { console.error(e); }
   }, []);
 
   const verifyPremium = async (email) => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify",email})}); const d = await r.json(); if(d.active){setIsPremium(true);setUserEmail(email);localStorage.setItem("deepdive-email",email);} } catch{} };
