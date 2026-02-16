@@ -144,7 +144,13 @@ function DeepDive() {
   const textareaRef = useRef(null);
 
   // Load saved data
-  useEffect(() => {
+  const verifyPremium = async (email) => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify",email})}); const d = await r.json(); if(d.active){setIsPremium(true);setUserEmail(email);localStorage.setItem("deepdive-email",email);} } catch{} };
+    const verifyCheckout = async (sid) => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify",sessionId:sid})}); const d = await r.json(); if(d.active){setIsPremium(true);setUserEmail(d.email);localStorage.setItem("deepdive-email",d.email);} } catch{} };
+    const handleSubscribe = async () => { if(!paywallEmail.trim()||!paywallEmail.includes("@"))return; setCheckingPremium(true); try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-checkout",email:paywallEmail.trim()})}); const d = await r.json(); if(d.url) window.location.href=d.url; } catch{alert("Connection error.");} setCheckingPremium(false); };
+    const handleManageSubscription = async () => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"portal",email:userEmail})}); const d = await r.json(); if(d.url) window.location.href=d.url; } catch{} };
+    const requirePremium = () => { if(isPremium) return true; setShowPaywall(true); return false; };
+
+    useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const sid = params.get("session_id");
@@ -155,11 +161,11 @@ function DeepDive() {
     } catch(e) { console.error(e); }
   }, []);
 
-  const verifyPremium = async (email) => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify",email})}); const d = await r.json(); if(d.active){setIsPremium(true);setUserEmail(email);localStorage.setItem("deepdive-email",email);} } catch{} };
-  const verifyCheckout = async (sid) => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify",sessionId:sid})}); const d = await r.json(); if(d.active){setIsPremium(true);setUserEmail(d.email);localStorage.setItem("deepdive-email",d.email);} } catch{} };
-  const handleSubscribe = async () => { if(!paywallEmail.trim()||!paywallEmail.includes("@"))return; setCheckingPremium(true); try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-checkout",email:paywallEmail.trim()})}); const d = await r.json(); if(d.url) window.location.href=d.url; } catch{alert("Connection error.");} setCheckingPremium(false); };
-  const handleManageSubscription = async () => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"portal",email:userEmail})}); const d = await r.json(); if(d.url) window.location.href=d.url; } catch{} };
-  const requirePremium = () => { if(isPremium) return true; setShowPaywall(true); return false; };
+  
+  
+  
+  
+  
 
   // Save data
   useEffect(() => {
