@@ -157,7 +157,11 @@ function DeepDive() {
     if (savedEmail) { setUserEmail(savedEmail); verifyPremium(savedEmail); }
     const params = new URLSearchParams(window.location.search);
     const sid = params.get("session_id");
-    if (sid) { verifyCheckout(sid); window.history.replaceState({}, "", "/"); }
+    if (sid) { verifyCheckout(sid); window.history.replaceState({}, "", "/app.html");
+    }
+    if (params.get("upgrade") === "true") {
+      setShowPaywall(true);
+      window.history.replaceState({}, "", "/app.html"); }
   }, []);
 
   const verifyPremium = async (email) => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify",email})}); const d = await r.json(); if(d.active){setIsPremium(true);setUserEmail(email);localStorage.setItem("deepdive-email",email);} } catch{} };
