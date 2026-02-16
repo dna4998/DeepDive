@@ -138,7 +138,7 @@ function DeepDive() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallEmail, setPaywallEmail] = useState("");
   const [checkingPremium, setCheckingPremium] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  
 
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -146,21 +146,10 @@ function DeepDive() {
   // Load saved data
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("deepdive-data");
-      if (saved) {
-        const d = JSON.parse(saved);
-        setCompletedSections(d.completedSections || []);
-        setJournalEntries(d.journalEntries || []);
-        setCurrentStreak(d.currentStreak || 0);
-      }
-    } catch {}
-    const savedEmail = localStorage.getItem("deepdive-email");
-    if (savedEmail) { setUserEmail(savedEmail); verifyPremium(savedEmail); }
-    const params = new URLSearchParams(window.location.search);
-    try {
+      const params = new URLSearchParams(window.location.search);
       const sid = params.get("session_id");
       if (sid) { verifyCheckout(sid); }
-      if (params.get("success") === "true") { setIsPremium(true); setShowSuccess(true); setTimeout(() => setShowSuccess(false), 6000); }
+      if (params.get("success") === "true") { setIsPremium(true); alert("Premium Activated! AI Coach and Journal are now unlocked."); }
       if (params.get("upgrade") === "true") { setShowPaywall(true); }
       if (sid || params.get("success") || params.get("upgrade")) { window.history.replaceState({}, "", "/app.html"); }
     } catch(e) { console.error(e); }
@@ -1018,7 +1007,7 @@ function DeepDive() {
         {view === "coach" && renderCoach()}
         {view === "journal" && renderJournal()}
         {renderPaywall()}
-        {renderSuccess()}
+        
         {renderNav()}
       </div>
     </>
