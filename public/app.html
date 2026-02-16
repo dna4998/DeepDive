@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#09090b">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-180x180.png">
+<title>DeepDive — Reprogram Your Reality</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #09090b; overflow-x: hidden; }
+  #root { min-height: 100%; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useRef, useEffect, useCallback, createElement: h } = React;
+
+
+// ── Course Content ──
+const SECTIONS = [
+  { part: "I", partTitle: "THE FOUNDATION", id: 1, title: "Everything Is Energy & Vibration", icon: "⚡", summary: "Reality is 99.999% empty space. Everything vibrates at different frequencies. Your frequency determines which reality you tune into.", keyInsight: "You are a walking radio dial. Your thoughts + emotions + physiology = your frequency. The universe responds to your frequency, not your words.", exercise: "Close your eyes. Think the thoughts of someone who already has what you want. Feel the emotions. Adjust your physiology. Hold that state for 60 seconds.", question: "What frequency are you broadcasting right now? If you already had what you want, what would you think, feel, and how would your body feel?" },
+  { part: "I", partTitle: "THE FOUNDATION", id: 2, title: "Cause & Effect — The Mirror Principle", icon: "🪞", summary: "Physical reality is the effect. Your mental/emotional state is the cause. You cannot change a reaction with another reaction.", keyInsight: "Most people try to change the mirror instead of changing themselves. Your identity is the cause; your circumstances are the reflection.", exercise: "Identify one area where you're trying to force an effect. Ask: 'What identity would I need to hold for this to change naturally?' Write it down.", question: "What effect are you trying to change right now? What is the internal cause creating it?" },
+  { part: "I", partTitle: "THE FOUNDATION", id: 3, title: "Your Brain Is a Filter, Not a Camera", icon: "🧠", summary: "Your brain processes 11 million bits/second but you're aware of ~40. Your RAS filters for relevance based on your beliefs.", keyInsight: "You're not seeing objective reality. You're seeing reality through the filter of your beliefs. Your RAS is programmable.", exercise: "Declare: 'I am someone who sees opportunities.' For the next 24 hours, catch every piece of evidence that proves this new belief. Write them down.", question: "What does your current filter show you most — obstacles or opportunities? What belief is creating that filter?" },
+  { part: "I", partTitle: "THE FOUNDATION", id: 4, title: "Self-Image Is Your Operating System", icon: "💻", summary: "Maxwell Maltz discovered a psychological thermostat. Your self-image determines the range of what you can achieve.", keyInsight: "Your subconscious can't tell the difference between a vividly imagined experience and a real one. Identity comes before results. Always.", exercise: "Close your eyes for 5 minutes. See yourself as the person you're becoming. What are you wearing? Where are you? What are you doing? How do you feel? Make it vivid.", question: "Who do you see yourself as right now? Who would you need to see yourself as to have your desired reality?" },
+  { part: "I", partTitle: "THE FOUNDATION", id: 5, title: "Emotion Is the Majority Shareholder", icon: "❤️", summary: "Your heart's electromagnetic field is 60-100x stronger than your brain's. When heart and head conflict, the heart wins.", keyInsight: "Stop trying to think your way into a new reality. Feel your way into it. Emotion is the language your subconscious understands.", exercise: "Set a timer for 60 seconds. Close your eyes. Generate the emotion you'd feel if you already had your desired reality. Feel it in your chest. In your body.", question: "What emotion dominates your day? What emotion would you feel if you already had what you want?" },
+  { part: "II", partTitle: "THE SCIENCE", id: 6, title: "The Self-Fulfilling Prophecy Mechanism", icon: "🔄", summary: "Rosenthal's 1968 experiment: randomly labeled 'bloomers' dramatically outperformed peers because teachers expected them to.", keyInsight: "Belief → Neural pathway → RAS filter → Evidence → Reinforced belief → Stronger filter → Loop compounds. You've been running this loop your entire life.", exercise: "Pick one limiting belief. Find 3 people who started where you are and achieved what you want. Let their existence dismantle your 'no.'", question: "What belief is running your current loop? What new belief would create the loop you want?" },
+  { part: "II", partTitle: "THE SCIENCE", id: 7, title: "Normality Is Your Base Frequency", icon: "📡", summary: "Your subconscious doesn't manifest what you want. It manifests what it perceives as normal.", keyInsight: "When something is on a pedestal, there's a gap between you and it. Make your desire feel as normal as your old shoes — no gap, no separation.", exercise: "Write your desire as if it's boring because it happens so often: 'Of course [desire] is happening. That's just how things are for me now.'", question: "What do you currently find normal? What do you want to be normal instead?" },
+  { part: "II", partTitle: "THE SCIENCE", id: 8, title: "The Magnify & Maintain Mechanism", icon: "🔊", summary: "The universe detects your dominant emotional state, amplifies it (Magnify), then locks you in (Maintain).", keyInsight: "Your first 10 minutes after waking set the signal. Don't check your phone. Choose your emotional state first.", exercise: "Tomorrow morning, spend the first 10 minutes choosing your emotional state. Gratitude. Peace. Certainty. Feel it for 60 seconds before doing anything else.", question: "What emotional state did you wake up in today? What loop are you currently in?" },
+  { part: "III", partTitle: "THE REPROGRAMMING", id: 9, title: "The Universe's Definition of 'Having'", icon: "🌌", summary: "You can only have what you already have — internally. Before anything exists physically, it must exist vibrationally.", keyInsight: "If not seeing your desired reality bothers you, you don't have it internally yet. Internal lack creates external lack.", exercise: "Close your eyes. Imagine you already have it. Feel the emotions so intensely your body responds. Do this until you no longer need external proof.", question: "Do you have it internally? Can you feel complete without seeing it?" },
+  { part: "III", partTitle: "THE REPROGRAMMING", id: 10, title: "Living In The End (Neville Goddard)", icon: "🎯", summary: "Don't think about your desire. Think FROM already having it. Assumptions harden into facts when held persistently.", keyInsight: "Thinking about it keeps you separated. Thinking from it closes the gap. The best way to manifest is to stop manifesting — just be.", exercise: "Before bed tonight, visualize one scene that implies your wish is fulfilled. Feel it. Let that be the last thing you experience before sleep.", question: "Are you thinking about it or thinking from it? Does it feel natural yet?" },
+  { part: "III", partTitle: "THE REPROGRAMMING", id: 11, title: "The Amazon Order Method", icon: "📦", summary: "Place the order, trust delivery, move on. You don't refresh Amazon tracking obsessively.", keyInsight: "Who, where, when, and how are above your pay grade. Your job: place the order. Universe's job: handle delivery.", exercise: "Declare your desire out loud: 'This is ordered. It's done.' Feel the certainty. Then move on. Don't check for it today.", question: "Did you place the order clearly? Are you trusting or tracking obsessively?" },
+  { part: "III", partTitle: "THE REPROGRAMMING", id: 12, title: "Specificity Programs the Mechanism", icon: "🎯", summary: "Vague goals stay in fantasy. Specific goals become targets your brain locks onto.", keyInsight: "Your RAS needs concrete details, not concepts. Specificity = clarity = belief = reality.", exercise: "Write your desire with full sensory detail. What does it look like, sound like, smell like, feel like? Include exact numbers and details.", question: "What exactly do you want? Can you see it, feel it, and experience it in detail?" },
+  { part: "III", partTitle: "THE REPROGRAMMING", id: 13, title: "Acting As If — Building The Bridge", icon: "🌉", summary: "Before making his first million, the author planned allocation, not acquisition. He acted as if the money was already there.", keyInsight: "Winners focus on allocation ('How do I use this?') not acquisition ('How do I get this?'). Frequency of having attracts having.", exercise: "Plan what you'll do with your desire once you have it. Make one real move today — call someone, research something, set something up.", question: "Are you planning acquisition or allocation? What would you do with it if you had it now?" },
+  { part: "III", partTitle: "THE REPROGRAMMING", id: 14, title: "Reprogramming Through Emotional Charge", icon: "⚡", summary: "Your subconscious doesn't respond to repetition. It responds to emotional intensity.", keyInsight: "One intense emotional experience beats 1,000 weak affirmations. Feel it until your body responds — tears, goosebumps, laughter.", exercise: "Pick one scene (wish fulfilled). Experience it with ALL senses for 60 seconds. Feel the emotion until your body responds physically.", question: "Are you visualizing or experiencing? How intense is the emotional charge?" },
+  { part: "III", partTitle: "THE REPROGRAMMING", id: 15, title: "Killing the 'No's' & Installing the 'Yes's'", icon: "🔑", summary: "Your subconscious has limiting 'no's' and empowering 'yes's.' Kill the no's, install the yes's.", keyInsight: "Shift from 'Can I do this?' (IF-based, doubt) to 'When will this happen?' (WHEN-based, certainty).", exercise: "List 3 limiting beliefs. For each, find one person who proved it wrong. Write: 'If they can, I can. When, not if.'", question: "What do you believe is impossible for you? Where's the evidence that belief is false?" },
+  { part: "IV", partTitle: "THE EXECUTION", id: 16, title: "Why Mindset Without Vehicles Is Dangerous", icon: "🚗", summary: "Mindset sets the destination. Vehicles create the pathways. Without pathways, the universe uses whatever's available.", keyInsight: "Businesses, skills, networks, expertise — each is a pathway for manifestation. Build them deliberately.", exercise: "Choose one vehicle to build this week. A skill, a business idea, a relationship, a platform. Take one action on it today.", question: "What pathways have you built? What pathways do you need to build?" },
+  { part: "IV", partTitle: "THE EXECUTION", id: 17, title: "Increasing Surface Area For Luck", icon: "🍀", summary: "Luck = preparation + visibility + action. More surface area = more collision points = more opportunities.", keyInsight: "You're not unlucky. You're invisible. Be loud. Be seen. Be in motion. Surface area creates serendipity.", exercise: "Do one thing today to increase your visibility. Post content, reach out to someone, share an opinion. Be seen.", question: "How visible are you on a scale of 1-10? Where can you be louder?" },
+  { part: "IV", partTitle: "THE EXECUTION", id: 18, title: "The Path Illuminates As You Walk It", icon: "🛤️", summary: "You can't see the entire path from where you're standing. Each step reveals the next.", keyInsight: "Your job: What do I want? Who am I becoming? What action is in front of me now? The universe handles logistics.", exercise: "Take one action today without needing to see the full path. Trust that step 2 reveals itself after step 1.", question: "Are you waiting for the full map? What's the next step right in front of you?" },
+  { part: "IV", partTitle: "THE EXECUTION", id: 19, title: "Delusional Confidence (The Fuel)", icon: "🔥", summary: "When all beliefs align with winning, your RAS has a clear directive: filter for success. No conflicting signals.", keyInsight: "Before results: 'You're delusional.' After results: 'You're lucky.' Reality: same conviction. Reality just caught up.", exercise: "Write your 'unshakeable foundation' — your deepest why. Read it whenever doubt creeps in.", question: "Could criticism derail you? Could failure make you stop? Do you need validation?" },
+  { part: "V", partTitle: "THE ADVANCED MECHANICS", id: 20, title: "The Seven Hermetic Principles", icon: "⚗️", summary: "Seven universal laws from The Kybalion: Mentalism, Correspondence, Vibration, Polarity, Rhythm, Cause & Effect, Gender.", keyInsight: "Be the cause, not the effect. Raise your vibration. Transmute negative to positive. Balance action and intuition.", exercise: "Today, catch yourself being an 'effect' (reacting). Consciously shift to being a 'cause' (creating). Do this 3 times.", question: "Are you operating as cause or effect? What vibration are you holding?" },
+  { part: "V", partTitle: "THE ADVANCED MECHANICS", id: 21, title: "Kabbalah & The Creative Power of Thought", icon: "✡️", summary: "In Kabbalah, God creates through speech. Your internal dialogue programs your reality.", keyInsight: "'I AM' is the divine name. When you say 'I am wealthy,' you're speaking it into existence. Monitor your speech.", exercise: "Monitor your internal dialogue for one hour. Catch every time you say something that programs lack. Replace it immediately.", question: "What are you saying to yourself? What are you speaking into existence?" },
+  { part: "V", partTitle: "THE ADVANCED MECHANICS", id: 22, title: "Prayer & Asking For Blessings", icon: "🙏", summary: "Ask directly. Be specific. Be persistent. Be grateful. You have not because you ask not.", keyInsight: "You're not asking from greed. You're asking to be a vessel. Blessing others requires being blessed first.", exercise: "Morning prayer: 'God, I ask you to bless me with [specific desire].' Then: 'Thank you for blessing me with [desire].' Feel the gratitude.", question: "Are you asking directly and specifically? Are you asking persistently?" },
+  { part: "V", partTitle: "THE ADVANCED MECHANICS", id: 23, title: "Fear Is Ignorant Faith", icon: "🛡️", summary: "Fear has the same attractive power as faith. The only difference: where it's pointed.", keyInsight: "Fear is faith in reverse. Both are conviction. Both manifest. Your emotions win over your words every time.", exercise: "Name your biggest fear. Then: 'Be still and know.' Shift focus to aspects that imply safety rather than danger. Act despite fear.", question: "What are you afraid of? Are you praying with words or emotions?" },
+  { part: "V", partTitle: "THE ADVANCED MECHANICS", id: 24, title: "Desperation — The Repelling Force", icon: "🧲", summary: "The moment you need something, you repel it. Wanting creates seeking. Seeking creates lack.", keyInsight: "You've never wanted your desired reality. You just wanted to feel different. That feeling requires nothing external.", exercise: "Ask: 'How would I feel if I had it?' Feel it now. For 60 seconds. Without needing proof. That's the frequency that manifests.", question: "Are you seeking externally or internally? Can you feel it now without the thing?" },
+  { part: "V", partTitle: "THE ADVANCED MECHANICS", id: 25, title: "The Complete Operating System", icon: "🖥️", summary: "6 phases: Foundation → Reprogramming → Installation → Execution → Maintenance → Recognition.", keyInsight: "Mindset sets the destination. Vehicles create the pathways. Action opens the doors. Together: inevitable success.", exercise: "Determine which phase you're in. Execute that phase's actions today. Move through the system deliberately.", question: "What phase are you in right now? What's the one action from that phase you'll take today?" },
+  { part: "VI", partTitle: "THE BHAGAVAD GITA — ETERNAL WISDOM", id: 26, title: "Nishkama Karma — The Yoga of Selfless Action", icon: "🙏", summary: "Krishna's most powerful teaching: 'You have a right to perform your duties, but you are not entitled to the fruits of your actions.' (BG 2.47). Action is inevitable — inaction is impossible.", keyInsight: "Selfless action (Nishkama Karma) is the foundation of all lasting success. Act with full dedication but zero attachment to results. This isn't passivity — it's the highest form of engagement. Work becomes worship when done without selfish desire.", exercise: "Choose one action today. Do it with 100% effort and 0% attachment to the outcome. Afterward, reflect: how did it feel to act without needing a specific result?", question: "Where are you acting from selfish desire vs. selfless duty? What would change if you released attachment to the fruits?" },
+  { part: "VI", partTitle: "THE BHAGAVAD GITA — ETERNAL WISDOM", id: 27, title: "The Mind — Your Greatest Friend or Fiercest Enemy", icon: "⚔️", summary: "BG 6.5-6: 'For those who have conquered the mind, it is their best friend. For those who have failed to do so, the mind remains their greatest enemy.'", keyInsight: "The same mind that can lead you to liberation can drag you to destruction. Lust, anger, greed, envy — your biggest enemies — all reside within your own mind. Use the higher mind (intellect/buddhi) to master the lower mind (reactive emotions/manas).", exercise: "Catch your mind acting as your enemy 3 times today — reactive anger, self-doubt, craving. Each time pause, observe without acting on it. Say: 'I see you. You are not me.'", question: "Is your mind currently your friend or enemy? What habitual thought pattern causes you the most harm?" },
+  { part: "VI", partTitle: "THE BHAGAVAD GITA — ETERNAL WISDOM", id: 28, title: "Dharma — What You Must Do vs. What You Must Not Do", icon: "⚖️", summary: "BG 3.35: 'It is better to perform one\'s own duty imperfectly than to master the duty of another.' Your dharma is YOUR unique path.", keyInsight: "What NOT to do is as important as what TO do. Avoid: acting from ego, comparing your path to others, pursuing results through unethical means, abandoning your unique duty to imitate someone else. Krishna calls desire and anger the 'all-devouring sinful enemies' (BG 3.37).", exercise: "Write two lists: (1) What is my dharma — what am I uniquely called to do? (2) What must I STOP doing — actions driven by ego, comparison, or greed? Drop one item from list 2 this week.", question: "Are you living YOUR dharma or imitating someone else's? What ego-driven action do you need to stop?" },
+  { part: "VI", partTitle: "THE BHAGAVAD GITA — ETERNAL WISDOM", id: 29, title: "Equanimity — The Yoga of Balance", icon: "☯️", summary: "BG 2.48: 'Perform your duty with an even mind in success and failure, for evenness of mind is called Yoga.' True yoga is mental equilibrium.", keyInsight: "Sthitaprajna (the person of steady wisdom) is neither elated by success nor crushed by failure. They withdraw their senses from worldly attachments like a tortoise pulls its limbs into its shell (BG 2.58). This is not indifference — it is unshakeable inner stability.", exercise: "Practice equanimity today: when praised, don't inflate. When something goes wrong, don't spiral. Observe: 'This is happening. I am not disturbed.' Journal tonight.", question: "What triggers you most — praise or criticism? Can you maintain equilibrium regardless of external events?" },
+  { part: "VI", partTitle: "THE BHAGAVAD GITA — ETERNAL WISDOM", id: 30, title: "The Three Gunas — Understanding Your Inner Nature", icon: "🔺", summary: "All of nature operates through three qualities: Sattva (purity, clarity), Rajas (passion, restlessness), and Tamas (inertia, darkness). Your dominant guna determines your reality.", keyInsight: "Sattva leads upward — clarity, wisdom, selfless action. Rajas chains you to desire and anxiety. Tamas pulls you into laziness and delusion. The goal: cultivate Sattva through pure food, thoughts, selfless action, and discipline. Ultimately, transcend all three gunas.", exercise: "Audit your day: What was Sattvic (uplifting)? Rajasic (anxiety-driven)? Tamasic (lazy/destructive)? Increase one Sattvic and reduce one Tamasic activity tomorrow.", question: "Which guna dominates your life — Sattva, Rajas, or Tamas? What one change shifts you toward Sattva?" },
+  { part: "VI", partTitle: "THE BHAGAVAD GITA — ETERNAL WISDOM", id: 31, title: "Surrender and The Infinite — Letting Go to God", icon: "🙏", summary: "BG 18.66: 'Surrender unto Me. I shall deliver you from all sinful reactions. Do not fear.' BG 9.22: 'To those who worship Me with devotion, I carry what they lack and preserve what they have.'", keyInsight: "The ultimate teaching: surrender (Sharanagati). Do your absolute best — dharma, karma yoga, mental discipline — then release outcomes to the Divine. This is where human effort meets grace. Control what you can (effort, attitude, intention), surrender what you cannot (results, timing, path).", exercise: "Sit quietly 5 minutes. Identify what you are trying hardest to control. Say: 'I have done my best. I surrender the outcome. I trust the process.' Feel the weight lift.", question: "What are you refusing to surrender? What outcome are you clinging to that creates suffering?" },
+  { part: "VI", partTitle: "THE BHAGAVAD GITA — ETERNAL WISDOM", id: 32, title: "The 4-4-8-2 Breath — Gateway to Clarity & Abundance", icon: "🌬️", summary: "Before Krishna reveals wisdom to Arjuna, Arjuna must become still. Pranayama (breath control) is the ancient technology for stilling the mind. The 4-4-8-2 pattern — inhale 4 seconds, hold 4, exhale 8, hold 2 — activates your parasympathetic nervous system, silences mental noise, and opens you to abundance consciousness.", keyInsight: "Your breath is the bridge between your conscious and subconscious mind. When breath is chaotic, the mind is chaotic. When breath is controlled, the mind becomes your servant. The extended exhale (8 seconds) activates the vagus nerve, shifting you from fight-or-flight (scarcity) to rest-and-create (abundance). Use this BEFORE every important decision, negotiation, or creative session. The 2-second hold at empty creates a moment of pure stillness — the space where intuition speaks.", exercise: "Practice 6 rounds of 4-4-8-2 breathing right now: Inhale through nose for 4 seconds. Hold for 4 seconds. Exhale slowly through mouth for 8 seconds. Hold empty for 2 seconds. After 6 rounds, sit in stillness for 30 seconds. Notice the clarity.", question: "When do you make your worst decisions? Usually when your nervous system is activated — stress, fear, urgency. What would change if you took 2 minutes to breathe before every important choice?" },
+];
+
+const DAILY_PRACTICES = {
+  morning: [
+    { title: "Choose Your State", duration: "2 min", instruction: "Before checking your phone, close your eyes. Choose your emotional state for the day: Gratitude, Peace, or Certainty. Feel it in your body for 60 seconds." },
+    { title: "Install the Identity", duration: "5 min", instruction: "See yourself as the person you're becoming. Vividly. What are you wearing? Where are you? What are you doing? How do you feel? Make it so real your body responds." },
+    { title: "Declare & Ask", duration: "2 min", instruction: "Say out loud: 'I am [your desired identity].' Then ask directly: 'God, bless me with [specific desire].' Thank in advance. Feel the gratitude." },
+    { title: "4-4-8-2 Abundance Breath", duration: "2 min", instruction: "Before setting your filter, calm your nervous system with 4 rounds of 4-4-8-2 breathing: Inhale through nose for 4 seconds. Hold for 4 seconds. Exhale slowly through mouth for 8 seconds. Hold empty for 2 seconds. This shifts you from scarcity mode to abundance mode. Feel the stillness after." },
+    { title: "Set the Filter", duration: "1 min", instruction: "Tell your RAS what to find today: 'Today I see opportunities, evidence of abundance, and reasons to be grateful.' Set the filter." },
+  ],
+  evening: [
+    { title: "Filter Audit", duration: "2 min", instruction: "What evidence did your filter catch today that proves your new beliefs? Write down at least 3 pieces of evidence." },
+    { title: "Loop Check", duration: "1 min", instruction: "What loop were you in today? What emotional state dominated? If it wasn't the right loop, decide: 'Tomorrow, different signal.'" },
+    { title: "Living in the End", duration: "5 min", instruction: "Visualize one scene that implies your wish is fulfilled. Feel it with all senses. Let this be the last thing you experience before sleep." },
+    { title: "Gratitude Close", duration: "2 min", instruction: "Feel genuine gratitude for 3 things that happened today. Not just think — feel. Let gratitude be the last frequency you broadcast." },
+  ],
+};
+
+const SYSTEM_PROMPT = `You are DeepDive Coach — a transformation guide that helps users apply the principles of mental programming, frequency alignment, and conscious reality creation. You draw from quantum physics concepts, Hermetic philosophy, Kabbalah, neuroscience (RAS, neuroplasticity), and Neville Goddard's teachings.
+
+Your core principles:
+- Physical reality is the EFFECT, mental/emotional state is the CAUSE
+- Everything is energy vibrating at different frequencies
+- The RAS filters reality based on beliefs
+- Self-image is the operating system — identity before results
+- Emotion is the majority shareholder (heart field 60-100x stronger than brain)
+- The universe magnifies and maintains your dominant state
+- "Having" means vibrational alignment, not physical possession
+- Fear and faith are the same power, pointed in different directions
+- Desperation repels; detachment attracts
+- Mindset + Vehicles + Action = Inevitable success
+
+Bhagavad Gita Principles:
+- Nishkama Karma: Selfless action without attachment to fruits (BG 2.47)
+- The mind is your greatest friend when conquered, greatest enemy when uncontrolled (BG 6.5-6)
+- Dharma: Follow YOUR unique duty, not someone else's path (BG 3.35)
+- Equanimity: Even-mindedness in success and failure IS yoga (BG 2.48)
+- Three Gunas: Cultivate Sattva (purity), reduce Rajas (anxiety) and Tamas (inertia)
+- Surrender: Do your best, then release outcomes to the Divine (BG 18.66)
+- 4-4-8-2 Breathing: Inhale 4s, hold 4s, exhale 8s, hold 2s — activates vagus nerve, shifts from scarcity to abundance. Recommend before important decisions.
+
+Your approach:
+1. Listen to the user's situation without judgment
+2. Identify which principle(s) apply
+3. Help them see the CAUSE behind their current EFFECT
+4. Guide them to shift identity/beliefs/frequency
+5. Give specific, actionable exercises
+6. Maintain "when-based" not "if-based" language
+7. Be direct, confident, and caring — like a wise mentor
+
+Never be preachy. Be practical. Help them apply these principles to real situations — business, health, relationships, wealth, personal growth.
+
+Always end with a specific action they can take TODAY.`;
+
+// ── Utility ──
+const cn = (...classes) => classes.filter(Boolean).join(' ');
+
+// ── Main App ──
+function DeepDive() {
+  const [view, setView] = useState("home");
+  const [activeSection, setActiveSection] = useState(null);
+  const [practiceMode, setPracticeMode] = useState(null);
+  const [practiceStep, setPracticeStep] = useState(0);
+  const [journalEntries, setJournalEntries] = useState([]);
+  const [coachMessages, setCoachMessages] = useState([]);
+  const [coachInput, setCoachInput] = useState("");
+  const [coachLoading, setCoachLoading] = useState(false);
+  const [completedSections, setCompletedSections] = useState([]);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [journalInput, setJournalInput] = useState("");
+  const [journalType, setJournalType] = useState("belief_audit");
+  const [frequencyRating, setFrequencyRating] = useState(5);
+  const [timerActive, setTimerActive] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(60);
+  const [showExercise, setShowExercise] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallEmail, setPaywallEmail] = useState("");
+  const [checkingPremium, setCheckingPremium] = useState(false);
+
+  const chatEndRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  // Load saved data
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("deepdive-data");
+      if (saved) {
+        const d = JSON.parse(saved);
+        setCompletedSections(d.completedSections || []);
+        setJournalEntries(d.journalEntries || []);
+        setCurrentStreak(d.currentStreak || 0);
+      }
+    } catch {}
+    const savedEmail = localStorage.getItem("deepdive-email");
+    if (savedEmail) { setUserEmail(savedEmail); verifyPremium(savedEmail); }
+    const params = new URLSearchParams(window.location.search);
+    const sid = params.get("session_id");
+    if (sid) { verifyCheckout(sid); window.history.replaceState({}, "", "/"); }
+  }, []);
+
+  const verifyPremium = async (email) => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify",email})}); const d = await r.json(); if(d.active){setIsPremium(true);setUserEmail(email);localStorage.setItem("deepdive-email",email);} } catch{} };
+  const verifyCheckout = async (sid) => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify",sessionId:sid})}); const d = await r.json(); if(d.active){setIsPremium(true);setUserEmail(d.email);localStorage.setItem("deepdive-email",d.email);} } catch{} };
+  const handleSubscribe = async () => { if(!paywallEmail.trim()||!paywallEmail.includes("@"))return; setCheckingPremium(true); try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-checkout",email:paywallEmail.trim()})}); const d = await r.json(); if(d.url) window.location.href=d.url; } catch{alert("Connection error.");} setCheckingPremium(false); };
+  const handleManageSubscription = async () => { try { const r = await fetch("/api/subscribe", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"portal",email:userEmail})}); const d = await r.json(); if(d.url) window.location.href=d.url; } catch{} };
+  const requirePremium = () => { if(isPremium) return true; setShowPaywall(true); return false; };
+
+  // Save data
+  useEffect(() => {
+    try {
+      localStorage.setItem("deepdive-data", JSON.stringify({ completedSections, journalEntries, currentStreak }));
+    } catch {}
+  }, [completedSections, journalEntries, currentStreak]);
+
+  // Chat scroll
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [coachMessages, coachLoading]);
+
+  // Timer
+  useEffect(() => {
+    if (!timerActive || timerSeconds <= 0) {
+      if (timerSeconds <= 0) setTimerActive(false);
+      return;
+    }
+    const interval = setInterval(() => setTimerSeconds(s => s - 1), 1000);
+    return () => clearInterval(interval);
+  }, [timerActive, timerSeconds]);
+
+  // AI Coach
+  const sendCoachMessage = async () => {
+    const trimmed = coachInput.trim();
+    if (!trimmed || coachLoading) return;
+    
+    const userMsg = { role: "user", content: trimmed, timestamp: Date.now() };
+    const newMessages = [...coachMessages, userMsg];
+    setCoachMessages(newMessages);
+    setCoachInput("");
+    setCoachLoading(true);
+
+    try {
+      const apiMessages = newMessages.map(m => ({ role: m.role, content: m.content }));
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2048,
+          system: SYSTEM_PROMPT,
+          messages: apiMessages
+        })
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message);
+      const reply = (data.content?.filter(b => b.type === "text").map(b => b.text) || []).join("\n\n") || "Let me help you go deeper.";
+      setCoachMessages([...newMessages, { role: "assistant", content: reply, timestamp: Date.now() }]);
+    } catch (err) {
+      setCoachMessages([...newMessages, { role: "assistant", content: "Connection issue. Take a breath and try again.", timestamp: Date.now() }]);
+    } finally { setCoachLoading(false); }
+  };
+
+  const completeSection = (id) => {
+    if (!completedSections.includes(id)) {
+      setCompletedSections([...completedSections, id]);
+    }
+  };
+
+  const addJournalEntry = () => {
+    if (!journalInput.trim()) return;
+    const entry = {
+      id: Date.now(),
+      type: journalType,
+      content: journalInput.trim(),
+      frequency: frequencyRating,
+      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      timestamp: Date.now()
+    };
+    setJournalEntries([entry, ...journalEntries]);
+    setJournalInput("");
+    setFrequencyRating(5);
+  };
+
+  const progress = Math.round((completedSections.length / SECTIONS.length) * 100);
+
+  // ── Styles ──
+  const theme = {
+    bg: "#06060f",
+    card: "#0d0d1a",
+    cardHover: "#12122a",
+    border: "#1a1a3e",
+    accent: "#6366f1",
+    accentGlow: "rgba(99,102,241,0.3)",
+    gold: "#f59e0b",
+    text: "#e2e8f0",
+    textMuted: "#64748b",
+    textDim: "#475569",
+    success: "#10b981",
+    danger: "#ef4444",
+    gradientStart: "#6366f1",
+    gradientEnd: "#a855f7",
+  };
+
+  // ── Render Functions ──
+
+
+  const renderPaywall = () => { if(!showPaywall) return null; return (
+    <div style={{position:"fixed",inset:0,zIndex:200,background:"rgba(0,0,0,0.8)",backdropFilter:"blur(12px)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}}>
+      <div style={{background:"#0d0d1a",borderRadius:"24px",padding:"32px 24px",maxWidth:"400px",width:"100%",border:"1px solid #1a1a3e",position:"relative"}}>
+        <button onClick={()=>setShowPaywall(false)} style={{position:"absolute",top:"16px",right:"16px",background:"none",border:"none",color:"#64748b",fontSize:"20px",cursor:"pointer"}}>x</button>
+        <div style={{textAlign:"center",marginBottom:"24px"}}>
+          <div style={{fontSize:"40px",marginBottom:"8px"}}>{"ॐ"}</div>
+          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"24px",color:"#e2e8f0",margin:"0 0 8px"}}>Unlock DeepDive Premium</h2>
+          <p style={{color:"#64748b",fontSize:"14px",fontFamily:"'DM Sans',sans-serif",margin:0}}>$4.99/month - cancel anytime</p>
+        </div>
+        <div style={{marginBottom:"24px"}}>
+          {["AI Coach - personalized guidance on all 31 principles","Journal - 5 modes with belief audit and frequency tracking","Progress tracking - streaks and completion stats","Full access to all current and future features"].map((f,i)=>(
+            <div key={i} style={{display:"flex",gap:"10px",alignItems:"flex-start",marginBottom:"10px"}}>
+              <span style={{color:"#6366f1",fontSize:"16px",flexShrink:0}}>{"\u2713"}</span>
+              <span style={{color:"#e2e8f0",fontSize:"13px",fontFamily:"'DM Sans',sans-serif",lineHeight:1.5}}>{f}</span>
+            </div>
+          ))}
+        </div>
+        <input type="email" value={paywallEmail} onChange={e=>setPaywallEmail(e.target.value)} placeholder="Enter your email" onKeyDown={e=>{if(e.key==="Enter")handleSubscribe();}}
+          style={{width:"100%",background:"#09090b",border:"1px solid #1a1a3e",borderRadius:"12px",padding:"14px 16px",color:"#e2e8f0",fontSize:"14px",fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",marginBottom:"12px"}} />
+        <button onClick={handleSubscribe} disabled={checkingPremium} style={{width:"100%",background:"linear-gradient(135deg,#6366f1,#a855f7)",border:"none",color:"white",padding:"14px",borderRadius:"12px",fontSize:"15px",fontFamily:"'DM Sans',sans-serif",cursor:"pointer",fontWeight:600,marginBottom:"12px"}}>
+          {checkingPremium ? "Loading..." : "Start Premium - $4.99/mo"}
+        </button>
+        <p style={{color:"#475569",fontSize:"11px",textAlign:"center",fontFamily:"'DM Sans',sans-serif",margin:0}}>Secure payment via Stripe. Cancel anytime.</p>
+      </div>
+    </div>
+  ); };
+
+  const renderNav = () => (
+    <nav style={{
+      position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
+      background: "rgba(6,6,15,0.95)", backdropFilter: "blur(20px)",
+      borderTop: `1px solid ${theme.border}`,
+      display: "flex", justifyContent: "space-around", padding: "8px 0 max(8px, env(safe-area-inset-bottom))",
+    }}>
+      {[
+        { id: "home", icon: "ॐ", label: "Home" },
+        { id: "course", icon: "◎", label: "Course" },
+        { id: "practice", icon: "☀", label: "Practice" },
+        { id: "coach", icon: "◆", label: "Coach" },
+        { id: "journal", icon: "◇", label: "Journal" },
+      ].map(tab => (
+        <button key={tab.id} onClick={() => { if ((tab.id==="coach"||tab.id==="journal") && !isPremium) { setShowPaywall(true); return; } setView(tab.id); setActiveSection(null); setPracticeMode(null); }}
+          style={{
+            background: "none", border: "none", cursor: "pointer",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: "2px",
+            color: view === tab.id ? theme.accent : theme.textMuted,
+            fontSize: "10px", fontFamily: "'DM Sans', sans-serif", padding: "4px 12px",
+            transition: "color 0.2s",
+          }}>
+          <span style={{ fontSize: "20px", lineHeight: 1 }}>{tab.icon}</span>
+          <span>{tab.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+
+  const renderHome = () => (
+    <div style={{ padding: "24px 20px 100px" }}>
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: "32px", paddingTop: "16px" }}>
+        <div style={{
+          width: "72px", height: "72px", margin: "0 auto 16px",
+          borderRadius: "20px", overflow: "hidden",
+          boxShadow: `0 8px 32px ${theme.accentGlow}`,
+        }}>
+          <svg viewBox="0 0 200 200" width="72" height="72">
+            <defs><radialGradient id="auraH" cx="50%" cy="50%" r="40%"><stop offset="0%" stopColor="#6366f1" stopOpacity="0.19"/><stop offset="100%" stopColor="#6366f1" stopOpacity="0"/></radialGradient></defs>
+            <rect x="0" y="0" width="200" height="200" rx="40" fill="#09090b"/>
+            <circle cx="100" cy="100" r="60" fill="url(#auraH)"/>
+            <text x="100" y="118" textAnchor="middle" fontFamily="serif" fontSize="78" fill="#f5f5f4">ॐ</text>
+            <rect x="0" y="0" width="200" height="200" rx="40" fill="none" stroke="#27272a" strokeWidth="1"/>
+          </svg>
+        </div>
+        <h1 style={{
+          fontFamily: "'Playfair Display', serif", fontSize: "32px", fontWeight: 700,
+          background: `linear-gradient(135deg, ${theme.text}, ${theme.accent})`,
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: "0 0 8px",
+        }}>DeepDive</h1>
+        <p style={{ color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", margin: 0, letterSpacing: "2px", textTransform: "uppercase" }}>
+          Reprogram Your Reality
+        </p>
+        {isPremium ? (
+          <div onClick={handleManageSubscription} style={{display:"inline-flex",alignItems:"center",gap:"6px",background:"linear-gradient(135deg,#6366f115,#a855f715)",border:"1px solid #6366f130",borderRadius:"20px",padding:"4px 14px",marginTop:"8px",cursor:"pointer"}}>
+            <span style={{color:"#a855f7",fontSize:"12px",fontFamily:"'DM Sans',sans-serif"}}>Premium Active</span>
+          </div>
+        ) : (
+          <button onClick={()=>setShowPaywall(true)} style={{display:"inline-flex",alignItems:"center",gap:"6px",background:"linear-gradient(135deg,#6366f1,#a855f7)",border:"none",borderRadius:"20px",padding:"6px 16px",marginTop:"8px",cursor:"pointer",color:"white",fontSize:"12px",fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>
+            Upgrade to Premium
+          </button>
+        )}
+      </div>
+
+      {/* Progress */}
+      <div style={{
+        background: theme.card, borderRadius: "16px", padding: "20px",
+        border: `1px solid ${theme.border}`, marginBottom: "20px",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+          <span style={{ color: theme.text, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: "14px" }}>Journey Progress</span>
+          <span style={{ color: theme.accent, fontFamily: "'DM Mono', monospace", fontSize: "14px" }}>{progress}%</span>
+        </div>
+        <div style={{ background: theme.border, borderRadius: "8px", height: "6px", overflow: "hidden" }}>
+          <div style={{
+            width: `${progress}%`, height: "100%", borderRadius: "8px",
+            background: `linear-gradient(90deg, ${theme.gradientStart}, ${theme.gradientEnd})`,
+            transition: "width 0.5s ease",
+          }} />
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px" }}>
+          <span style={{ color: theme.textDim, fontSize: "12px", fontFamily: "'DM Sans', sans-serif" }}>
+            {completedSections.length} of {SECTIONS.length} sections
+          </span>
+          <span style={{ color: theme.gold, fontSize: "12px", fontFamily: "'DM Sans', sans-serif" }}>
+            🔥 {currentStreak} day streak
+          </span>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "24px" }}>
+        {[
+          { label: "Morning\nPractice", icon: "☀", action: () => { setView("practice"); setPracticeMode("morning"); setPracticeStep(0); }, color: "#f59e0b" },
+          { label: "Evening\nPractice", icon: "☽", action: () => { setView("practice"); setPracticeMode("evening"); setPracticeStep(0); }, color: "#8b5cf6" },
+          { label: "Talk to\nCoach", icon: "◆", action: () => { if(!requirePremium())return; setView("coach"); }, color: "#6366f1" },
+          { label: "Quick\nJournal", icon: "◇", action: () => { if(!requirePremium())return; setView("journal"); }, color: "#10b981" },
+        ].map((item, i) => (
+          <button key={i} onClick={item.action} style={{
+            background: theme.card, border: `1px solid ${theme.border}`,
+            borderRadius: "16px", padding: "20px 16px", cursor: "pointer",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: "8px",
+            transition: "all 0.2s",
+          }}
+          onMouseOver={e => { e.currentTarget.style.borderColor = item.color; e.currentTarget.style.boxShadow = `0 0 20px ${item.color}33`; }}
+          onMouseOut={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.boxShadow = "none"; }}
+          >
+            <span style={{ fontSize: "28px" }}>{item.icon}</span>
+            <span style={{
+              color: theme.text, fontSize: "13px", fontFamily: "'DM Sans', sans-serif",
+              textAlign: "center", whiteSpace: "pre-line", lineHeight: 1.3, fontWeight: 500,
+            }}>{item.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Today's Insight */}
+      <div style={{
+        background: `linear-gradient(135deg, ${theme.gradientStart}15, ${theme.gradientEnd}15)`,
+        border: `1px solid ${theme.gradientStart}30`,
+        borderRadius: "16px", padding: "20px",
+      }}>
+        <p style={{ color: theme.accent, fontSize: "11px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "2px" }}>Today's Principle</p>
+        <p style={{
+          color: theme.text, fontSize: "16px", fontFamily: "'Playfair Display', serif",
+          margin: "0 0 8px", lineHeight: 1.5, fontStyle: "italic",
+        }}>
+          "{SECTIONS[Math.floor(Date.now() / 86400000) % SECTIONS.length].keyInsight}"
+        </p>
+        <p style={{ color: theme.textMuted, fontSize: "12px", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+          — Section {SECTIONS[Math.floor(Date.now() / 86400000) % SECTIONS.length].id}: {SECTIONS[Math.floor(Date.now() / 86400000) % SECTIONS.length].title}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderCourse = () => {
+    if (activeSection !== null) {
+      const section = SECTIONS.find(s => s.id === activeSection);
+      return (
+        <div style={{ padding: "24px 20px 100px" }}>
+          <button onClick={() => setActiveSection(null)} style={{
+            background: "none", border: "none", color: theme.accent, cursor: "pointer",
+            fontFamily: "'DM Sans', sans-serif", fontSize: "14px", padding: "0", marginBottom: "20px",
+            display: "flex", alignItems: "center", gap: "6px",
+          }}>← Back to Course</button>
+
+          <div style={{ marginBottom: "8px" }}>
+            <span style={{ color: theme.accent, fontSize: "12px", fontFamily: "'DM Sans', sans-serif", textTransform: "uppercase", letterSpacing: "2px" }}>
+              Part {section.part} · {section.partTitle}
+            </span>
+          </div>
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif", fontSize: "26px", color: theme.text,
+            margin: "0 0 4px", lineHeight: 1.3,
+          }}>{section.icon} {section.title}</h2>
+
+          {/* Summary */}
+          <div style={{
+            background: theme.card, borderRadius: "16px", padding: "20px",
+            border: `1px solid ${theme.border}`, marginTop: "20px",
+          }}>
+            <p style={{ color: theme.accent, fontSize: "11px", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "2px", fontFamily: "'DM Sans', sans-serif" }}>The Insight</p>
+            <p style={{ color: theme.text, fontSize: "15px", lineHeight: 1.7, margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+              {section.summary}
+            </p>
+          </div>
+
+          {/* Key Insight */}
+          <div style={{
+            background: `linear-gradient(135deg, ${theme.gradientStart}15, ${theme.gradientEnd}15)`,
+            border: `1px solid ${theme.gradientStart}30`,
+            borderRadius: "16px", padding: "20px", marginTop: "16px",
+          }}>
+            <p style={{ color: theme.gold, fontSize: "11px", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "2px", fontFamily: "'DM Sans', sans-serif" }}>Key Insight</p>
+            <p style={{
+              color: theme.text, fontSize: "16px", lineHeight: 1.6, margin: 0,
+              fontFamily: "'Playfair Display', serif", fontStyle: "italic",
+            }}>
+              "{section.keyInsight}"
+            </p>
+          </div>
+
+          {/* Reflection Question */}
+          <div style={{
+            background: theme.card, borderRadius: "16px", padding: "20px",
+            border: `1px solid ${theme.border}`, marginTop: "16px",
+          }}>
+            <p style={{ color: theme.accent, fontSize: "11px", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "2px", fontFamily: "'DM Sans', sans-serif" }}>Reflection</p>
+            <p style={{ color: theme.text, fontSize: "15px", lineHeight: 1.6, margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+              {section.question}
+            </p>
+          </div>
+
+          {/* Exercise */}
+          <div style={{
+            background: theme.card, borderRadius: "16px", padding: "20px",
+            border: `1px solid ${theme.success}40`, marginTop: "16px",
+          }}>
+            <p style={{ color: theme.success, fontSize: "11px", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "2px", fontFamily: "'DM Sans', sans-serif" }}>Exercise</p>
+            <p style={{ color: theme.text, fontSize: "15px", lineHeight: 1.6, margin: "0 0 16px", fontFamily: "'DM Sans', sans-serif" }}>
+              {section.exercise}
+            </p>
+
+            {/* Timer */}
+            {section.exercise.includes("60 seconds") && (
+              <div style={{ textAlign: "center", marginBottom: "16px" }}>
+                <div style={{
+                  fontSize: "36px", fontFamily: "'DM Mono', monospace", color: timerActive ? theme.accent : theme.textMuted,
+                  marginBottom: "12px",
+                }}>{timerSeconds}s</div>
+                <button onClick={() => {
+                  if (timerActive) { setTimerActive(false); setTimerSeconds(60); }
+                  else { setTimerSeconds(60); setTimerActive(true); }
+                }} style={{
+                  background: timerActive ? theme.danger : `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`,
+                  border: "none", color: "white", padding: "10px 28px", borderRadius: "12px",
+                  fontSize: "14px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", fontWeight: 600,
+                }}>
+                  {timerActive ? "Reset" : "Start 60s Timer"}
+                </button>
+              </div>
+            )}
+
+            <button onClick={() => completeSection(section.id)} style={{
+              width: "100%",
+              background: completedSections.includes(section.id) ? theme.success : `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`,
+              border: "none", color: "white", padding: "14px", borderRadius: "12px",
+              fontSize: "15px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", fontWeight: 600,
+            }}>
+              {completedSections.includes(section.id) ? "✓ Completed" : "Mark Complete"}
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
+            {section.id > 1 && (
+              <button onClick={() => setActiveSection(section.id - 1)} style={{
+                background: theme.card, border: `1px solid ${theme.border}`, color: theme.text,
+                padding: "10px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'DM Sans', sans-serif",
+              }}>← Previous</button>
+            )}
+            {section.id < SECTIONS.length && (
+              <button onClick={() => setActiveSection(section.id + 1)} style={{
+                background: theme.card, border: `1px solid ${theme.border}`, color: theme.text,
+                padding: "10px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'DM Sans', sans-serif",
+                marginLeft: "auto",
+              }}>Next →</button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const parts = [...new Set(SECTIONS.map(s => s.part))];
+
+    return (
+      <div style={{ padding: "24px 20px 100px" }}>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", color: theme.text, margin: "16px 0 4px" }}>The Course</h2>
+        <p style={{ color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 24px" }}>
+          25 sections · {completedSections.length} completed
+        </p>
+
+        {parts.map(part => {
+          const partSections = SECTIONS.filter(s => s.part === part);
+          return (
+            <div key={part} style={{ marginBottom: "24px" }}>
+              <p style={{
+                color: theme.accent, fontSize: "11px", fontFamily: "'DM Sans', sans-serif",
+                textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 12px",
+              }}>Part {part} — {partSections[0].partTitle}</p>
+              {partSections.map(section => (
+                <button key={section.id} onClick={() => setActiveSection(section.id)} style={{
+                  width: "100%", textAlign: "left", background: theme.card,
+                  border: `1px solid ${completedSections.includes(section.id) ? theme.success + "40" : theme.border}`,
+                  borderRadius: "12px", padding: "16px", marginBottom: "8px",
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: "12px",
+                  transition: "all 0.2s",
+                }}
+                onMouseOver={e => e.currentTarget.style.borderColor = theme.accent}
+                onMouseOut={e => e.currentTarget.style.borderColor = completedSections.includes(section.id) ? theme.success + "40" : theme.border}
+                >
+                  <span style={{ fontSize: "24px", flexShrink: 0 }}>{section.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ color: theme.text, fontSize: "14px", margin: "0 0 2px", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>
+                      {section.id}. {section.title}
+                    </p>
+                    <p style={{
+                      color: theme.textDim, fontSize: "12px", margin: 0, fontFamily: "'DM Sans', sans-serif",
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>{section.summary}</p>
+                  </div>
+                  {completedSections.includes(section.id) && (
+                    <span style={{ color: theme.success, fontSize: "18px", flexShrink: 0 }}>✓</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderPractice = () => {
+    if (practiceMode) {
+      const practices = DAILY_PRACTICES[practiceMode];
+      const current = practices[practiceStep];
+      const isLast = practiceStep === practices.length - 1;
+
+      return (
+        <div style={{ padding: "24px 20px 100px" }}>
+          <button onClick={() => setPracticeMode(null)} style={{
+            background: "none", border: "none", color: theme.accent, cursor: "pointer",
+            fontFamily: "'DM Sans', sans-serif", fontSize: "14px", padding: 0, marginBottom: "20px",
+          }}>← Back</button>
+
+          {/* Progress */}
+          <div style={{ display: "flex", gap: "6px", marginBottom: "28px" }}>
+            {practices.map((_, i) => (
+              <div key={i} style={{
+                flex: 1, height: "4px", borderRadius: "2px",
+                background: i <= practiceStep ? `linear-gradient(90deg, ${theme.gradientStart}, ${theme.gradientEnd})` : theme.border,
+                transition: "background 0.3s",
+              }} />
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center", marginBottom: "8px" }}>
+            <span style={{ color: theme.textMuted, fontSize: "12px", fontFamily: "'DM Sans', sans-serif", textTransform: "uppercase", letterSpacing: "2px" }}>
+              {practiceMode === "morning" ? "☀ Morning" : "☽ Evening"} Practice
+            </span>
+          </div>
+
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif", fontSize: "28px", color: theme.text,
+            textAlign: "center", margin: "0 0 4px",
+          }}>{current.title}</h2>
+          <p style={{ textAlign: "center", color: theme.accent, fontSize: "13px", fontFamily: "'DM Mono', monospace", margin: "0 0 32px" }}>
+            {current.duration}
+          </p>
+
+          <div style={{
+            background: theme.card, borderRadius: "20px", padding: "28px",
+            border: `1px solid ${theme.border}`, marginBottom: "24px",
+          }}>
+            <p style={{
+              color: theme.text, fontSize: "17px", lineHeight: 1.8, margin: 0,
+              fontFamily: "'DM Sans', sans-serif",
+            }}>{current.instruction}</p>
+          </div>
+
+          {/* Timer for practice */}
+          <div style={{ textAlign: "center", marginBottom: "24px" }}>
+            <div style={{
+              width: "120px", height: "120px", borderRadius: "50%", margin: "0 auto 16px",
+              border: `3px solid ${timerActive ? theme.accent : theme.border}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "32px", fontFamily: "'DM Mono', monospace",
+              color: timerActive ? theme.accent : theme.textMuted,
+              transition: "all 0.3s",
+              boxShadow: timerActive ? `0 0 40px ${theme.accentGlow}` : "none",
+            }}>
+              {timerSeconds}s
+            </div>
+            <button onClick={() => {
+              if (timerActive) { setTimerActive(false); setTimerSeconds(60); }
+              else { setTimerSeconds(60); setTimerActive(true); }
+            }} style={{
+              background: timerActive ? "transparent" : `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`,
+              border: timerActive ? `1px solid ${theme.accent}` : "none",
+              color: "white", padding: "12px 32px", borderRadius: "12px",
+              fontSize: "14px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", fontWeight: 600,
+            }}>
+              {timerActive ? "Reset" : "Start Timer"}
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <div style={{ display: "flex", gap: "12px" }}>
+            {practiceStep > 0 && (
+              <button onClick={() => { setPracticeStep(practiceStep - 1); setTimerActive(false); setTimerSeconds(60); }} style={{
+                flex: 1, background: theme.card, border: `1px solid ${theme.border}`,
+                color: theme.text, padding: "14px", borderRadius: "12px",
+                fontSize: "15px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer",
+              }}>Back</button>
+            )}
+            <button onClick={() => {
+              if (isLast) { setPracticeMode(null); setTimerActive(false); setTimerSeconds(60); }
+              else { setPracticeStep(practiceStep + 1); setTimerActive(false); setTimerSeconds(60); }
+            }} style={{
+              flex: 1, background: `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`,
+              border: "none", color: "white", padding: "14px", borderRadius: "12px",
+              fontSize: "15px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", fontWeight: 600,
+            }}>
+              {isLast ? "Complete ✓" : "Next Step →"}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ padding: "24px 20px 100px" }}>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", color: theme.text, margin: "16px 0 4px" }}>Daily Practice</h2>
+        <p style={{ color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 24px" }}>
+          Guided routines to reprogram your operating system
+        </p>
+
+        {/* Morning */}
+        <button onClick={() => { setPracticeMode("morning"); setPracticeStep(0); }} style={{
+          width: "100%", textAlign: "left", background: `linear-gradient(135deg, #f59e0b15, #f59e0b05)`,
+          border: `1px solid #f59e0b30`, borderRadius: "16px", padding: "24px",
+          cursor: "pointer", marginBottom: "16px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+            <span style={{ fontSize: "32px" }}>☀</span>
+            <div>
+              <p style={{ color: theme.text, fontSize: "18px", margin: 0, fontFamily: "'Playfair Display', serif", fontWeight: 600 }}>Morning Practice</p>
+              <p style={{ color: "#f59e0b", fontSize: "12px", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>~10 minutes · 4 steps</p>
+            </div>
+          </div>
+          <p style={{ color: theme.textMuted, fontSize: "13px", margin: 0, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.5 }}>
+            Set your frequency, install your identity, declare your reality, and program your RAS filter for the day.
+          </p>
+        </button>
+
+        {/* Evening */}
+        <button onClick={() => { setPracticeMode("evening"); setPracticeStep(0); }} style={{
+          width: "100%", textAlign: "left", background: `linear-gradient(135deg, #8b5cf615, #8b5cf605)`,
+          border: `1px solid #8b5cf630`, borderRadius: "16px", padding: "24px",
+          cursor: "pointer", marginBottom: "24px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+            <span style={{ fontSize: "32px" }}>☽</span>
+            <div>
+              <p style={{ color: theme.text, fontSize: "18px", margin: 0, fontFamily: "'Playfair Display', serif", fontWeight: 600 }}>Evening Practice</p>
+              <p style={{ color: "#8b5cf6", fontSize: "12px", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>~10 minutes · 4 steps</p>
+            </div>
+          </div>
+          <p style={{ color: theme.textMuted, fontSize: "13px", margin: 0, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.5 }}>
+            Audit your filter, check your loop, live in the end, and close with gratitude. Program your subconscious before sleep.
+          </p>
+        </button>
+
+        {/* Quick Exercises */}
+        <p style={{ color: theme.accent, fontSize: "11px", fontFamily: "'DM Sans', sans-serif", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 12px" }}>Quick Exercises</p>
+        {[
+          { title: "60-Second Frequency Shift", desc: "Generate the feeling of having your desire. Hold it for 60 seconds.", icon: "⚡" },
+          { title: "Belief Flip", desc: "Name a limiting belief. Find evidence it's false. Declare the opposite.", icon: "🔄" },
+          { title: "Identity Check", desc: "Ask: 'Am I thinking FROM having it, or ABOUT getting it?' Shift.", icon: "🎯" },
+          { title: "Gratitude Burst", desc: "Feel genuine gratitude for 3 things. Not think — feel. 30 seconds each.", icon: "✨" },
+          { title: "4-4-8-2 Abundance Breath", desc: "Inhale 4s, hold 4s, exhale 8s, hold 2s. Activates parasympathetic nervous system. Use before important decisions or to enter an abundance state.", icon: "🌬️" },
+        ].map((ex, i) => (
+          <div key={i} style={{
+            background: theme.card, border: `1px solid ${theme.border}`,
+            borderRadius: "12px", padding: "16px", marginBottom: "8px",
+            display: "flex", alignItems: "flex-start", gap: "12px",
+          }}>
+            <span style={{ fontSize: "24px", flexShrink: 0 }}>{ex.icon}</span>
+            <div>
+              <p style={{ color: theme.text, fontSize: "14px", margin: "0 0 4px", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>{ex.title}</p>
+              <p style={{ color: theme.textDim, fontSize: "12px", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>{ex.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderCoach = () => (
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      {/* Header */}
+      <div style={{
+        padding: "20px", borderBottom: `1px solid ${theme.border}`,
+        background: "rgba(6,6,15,0.95)", backdropFilter: "blur(20px)",
+      }}>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", color: theme.text, margin: "16px 0 4px" }}>DeepDive Coach</h2>
+        <p style={{ color: theme.textMuted, fontSize: "12px", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>
+          AI guide applying transformation principles to your real life
+        </p>
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex: 1, overflow: "auto", padding: "20px", paddingBottom: "20px" }}>
+        {coachMessages.length === 0 && (
+          <div style={{ textAlign: "center", padding: "40px 20px" }}>
+            <span style={{ fontSize: "48px", display: "block", marginBottom: "16px" }}>◆</span>
+            <p style={{ color: theme.text, fontSize: "16px", fontFamily: "'Playfair Display', serif", margin: "0 0 8px" }}>
+              What's on your mind?
+            </p>
+            <p style={{ color: theme.textMuted, fontSize: "13px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 24px", lineHeight: 1.5 }}>
+              Share a goal, a challenge, or a belief you want to shift. I'll help you apply the principles.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
+              {[
+                "I want to build wealth but feel stuck",
+                "How do I shift my identity?",
+                "I keep self-sabotaging",
+                "Help me with my morning practice",
+              ].map((prompt, i) => (
+                <button key={i} onClick={() => { setCoachInput(prompt); }} style={{
+                  background: theme.card, border: `1px solid ${theme.border}`,
+                  color: theme.textMuted, padding: "8px 14px", borderRadius: "20px",
+                  fontSize: "12px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer",
+                }}>
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {coachMessages.map((msg, i) => (
+          <div key={i} style={{
+            display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
+            marginBottom: "16px",
+          }}>
+            <div style={{
+              maxWidth: "85%", padding: "14px 18px", borderRadius: "18px",
+              background: msg.role === "user"
+                ? `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`
+                : theme.card,
+              border: msg.role === "assistant" ? `1px solid ${theme.border}` : "none",
+            }}>
+              <p style={{
+                color: theme.text, fontSize: "14px", margin: 0,
+                fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6, whiteSpace: "pre-wrap",
+              }}>{msg.content}</p>
+            </div>
+          </div>
+        ))}
+
+        {coachLoading && (
+          <div style={{ display: "flex", marginBottom: "16px" }}>
+            <div style={{
+              background: theme.card, border: `1px solid ${theme.border}`,
+              padding: "14px 18px", borderRadius: "18px",
+            }}>
+              <p style={{ color: theme.textMuted, fontSize: "14px", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+                Going deeper...
+              </p>
+            </div>
+          </div>
+        )}
+        <div ref={chatEndRef} />
+      </div>
+
+      {/* Input */}
+      <div style={{
+        padding: "16px 20px", paddingBottom: "max(16px, calc(env(safe-area-inset-bottom) + 70px))",
+        borderTop: `1px solid ${theme.border}`, background: "rgba(6,6,15,0.95)",
+      }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
+          <textarea
+            ref={textareaRef}
+            value={coachInput}
+            onChange={e => setCoachInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendCoachMessage(); } }}
+            placeholder="Share what's on your mind..."
+            rows={1}
+            style={{
+              flex: 1, background: theme.card, border: `1px solid ${theme.border}`,
+              borderRadius: "14px", padding: "12px 16px", color: theme.text,
+              fontSize: "14px", fontFamily: "'DM Sans', sans-serif", resize: "none",
+              outline: "none", maxHeight: "120px",
+            }}
+          />
+          <button onClick={sendCoachMessage} disabled={coachLoading || !coachInput.trim()} style={{
+            background: coachInput.trim() ? `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})` : theme.card,
+            border: "none", borderRadius: "14px", width: "46px", height: "46px",
+            cursor: coachInput.trim() ? "pointer" : "default",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "white", fontSize: "18px", flexShrink: 0,
+          }}>▸</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderJournal = () => (
+    <div style={{ padding: "24px 20px 100px" }}>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", color: theme.text, margin: "16px 0 4px" }}>Journal</h2>
+      <p style={{ color: theme.textMuted, fontSize: "14px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 24px" }}>
+        Track your beliefs, frequency, and transformation
+      </p>
+
+      {/* New Entry */}
+      <div style={{
+        background: theme.card, borderRadius: "16px", padding: "20px",
+        border: `1px solid ${theme.border}`, marginBottom: "24px",
+      }}>
+        {/* Type Selector */}
+        <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
+          {[
+            { id: "belief_audit", label: "Belief Audit" },
+            { id: "frequency_check", label: "Frequency Check" },
+            { id: "evidence_log", label: "Evidence Log" },
+            { id: "gratitude", label: "Gratitude" },
+            { id: "free_write", label: "Free Write" },
+          ].map(type => (
+            <button key={type.id} onClick={() => setJournalType(type.id)} style={{
+              background: journalType === type.id ? `${theme.accent}20` : "transparent",
+              border: `1px solid ${journalType === type.id ? theme.accent : theme.border}`,
+              color: journalType === type.id ? theme.accent : theme.textMuted,
+              padding: "6px 14px", borderRadius: "20px", fontSize: "12px",
+              fontFamily: "'DM Sans', sans-serif", cursor: "pointer",
+            }}>{type.label}</button>
+          ))}
+        </div>
+
+        {/* Prompts */}
+        <p style={{ color: theme.textDim, fontSize: "12px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 8px", fontStyle: "italic" }}>
+          {journalType === "belief_audit" && "What limiting belief are you carrying? What's the evidence it's false?"}
+          {journalType === "frequency_check" && "What emotional state dominated today? What frequency are you broadcasting?"}
+          {journalType === "evidence_log" && "What evidence did your new filter catch today? What went right?"}
+          {journalType === "gratitude" && "What are you genuinely grateful for right now? Feel it as you write."}
+          {journalType === "free_write" && "Write whatever comes to mind. No filter. No editing. Just flow."}
+        </p>
+
+        <textarea
+          value={journalInput}
+          onChange={e => setJournalInput(e.target.value)}
+          placeholder="Write here..."
+          rows={4}
+          style={{
+            width: "100%", background: "transparent", border: `1px solid ${theme.border}`,
+            borderRadius: "12px", padding: "12px", color: theme.text,
+            fontSize: "14px", fontFamily: "'DM Sans', sans-serif", resize: "vertical",
+            outline: "none", boxSizing: "border-box",
+          }}
+        />
+
+        {/* Frequency Rating */}
+        {journalType === "frequency_check" && (
+          <div style={{ marginTop: "12px" }}>
+            <p style={{ color: theme.textMuted, fontSize: "12px", margin: "0 0 8px", fontFamily: "'DM Sans', sans-serif" }}>
+              Frequency today: {frequencyRating}/10
+            </p>
+            <input type="range" min="1" max="10" value={frequencyRating} onChange={e => setFrequencyRating(Number(e.target.value))}
+              style={{ width: "100%", accentColor: theme.accent }} />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: theme.danger, fontSize: "11px", fontFamily: "'DM Sans', sans-serif" }}>Fear/Lack</span>
+              <span style={{ color: theme.success, fontSize: "11px", fontFamily: "'DM Sans', sans-serif" }}>Peace/Certainty</span>
+            </div>
+          </div>
+        )}
+
+        <button onClick={addJournalEntry} disabled={!journalInput.trim()} style={{
+          width: "100%", marginTop: "16px",
+          background: journalInput.trim() ? `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})` : theme.border,
+          border: "none", color: "white", padding: "12px", borderRadius: "12px",
+          fontSize: "14px", fontFamily: "'DM Sans', sans-serif", cursor: journalInput.trim() ? "pointer" : "default", fontWeight: 600,
+        }}>Save Entry</button>
+      </div>
+
+      {/* Entries */}
+      {journalEntries.length > 0 && (
+        <p style={{ color: theme.accent, fontSize: "11px", fontFamily: "'DM Sans', sans-serif", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 12px" }}>
+          Past Entries
+        </p>
+      )}
+      {journalEntries.map(entry => (
+        <div key={entry.id} style={{
+          background: theme.card, border: `1px solid ${theme.border}`,
+          borderRadius: "12px", padding: "16px", marginBottom: "10px",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{
+              background: `${theme.accent}20`, color: theme.accent,
+              padding: "2px 10px", borderRadius: "10px", fontSize: "11px", fontFamily: "'DM Sans', sans-serif",
+            }}>
+              {entry.type.replace("_", " ")}
+            </span>
+            <span style={{ color: theme.textDim, fontSize: "11px", fontFamily: "'DM Sans', sans-serif" }}>{entry.date}</span>
+          </div>
+          <p style={{ color: theme.text, fontSize: "13px", margin: 0, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+            {entry.content}
+          </p>
+          {entry.type === "frequency_check" && (
+            <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: theme.textMuted, fontSize: "11px", fontFamily: "'DM Sans', sans-serif" }}>Frequency:</span>
+              <span style={{
+                color: entry.frequency >= 7 ? theme.success : entry.frequency >= 4 ? theme.gold : theme.danger,
+                fontSize: "13px", fontFamily: "'DM Mono', monospace", fontWeight: 600,
+              }}>{entry.frequency}/10</span>
+            </div>
+          )}
+        </div>
+      ))}
+
+      {journalEntries.length === 0 && (
+        <div style={{ textAlign: "center", padding: "32px", color: theme.textDim, fontFamily: "'DM Sans', sans-serif", fontSize: "13px" }}>
+          Your journal entries will appear here.
+          <br />Start writing to track your transformation.
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: ${theme.bg}; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        textarea:focus { border-color: ${theme.accent} !important; }
+        input[type="range"] { height: 4px; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: ${theme.border}; border-radius: 2px; }
+      `}</style>
+      <div style={{
+        maxWidth: "500px", margin: "0 auto", minHeight: "100vh",
+        background: theme.bg, position: "relative",
+      }}>
+        {view === "home" && renderHome()}
+        {view === "course" && renderCourse()}
+        {view === "practice" && renderPractice()}
+        {view === "coach" && renderCoach()}
+        {view === "journal" && renderJournal()}
+        {renderPaywall()}
+        {renderNav()}
+      </div>
+    </>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(<DeepDive />);
+
+// Register service worker
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
