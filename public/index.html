@@ -236,7 +236,7 @@ function DeepDive() {
       display: "flex", justifyContent: "space-around", padding: "8px 0 max(8px, env(safe-area-inset-bottom))",
     }}>
       {[
-        { id: "home", icon: "◈", label: "Home" },
+        { id: "home", icon: "ॐ", label: "Home" },
         { id: "course", icon: "◎", label: "Course" },
         { id: "practice", icon: "☀", label: "Practice" },
         { id: "coach", icon: "◆", label: "Coach" },
@@ -263,10 +263,17 @@ function DeepDive() {
       <div style={{ textAlign: "center", marginBottom: "32px", paddingTop: "16px" }}>
         <div style={{
           width: "72px", height: "72px", margin: "0 auto 16px",
-          background: `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`,
-          borderRadius: "20px", display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "32px", boxShadow: `0 8px 32px ${theme.accentGlow}`,
-        }}>◈</div>
+          borderRadius: "20px", overflow: "hidden",
+          boxShadow: `0 8px 32px ${theme.accentGlow}`,
+        }}>
+          <svg viewBox="0 0 200 200" width="72" height="72">
+            <defs><radialGradient id="auraH" cx="50%" cy="50%" r="40%"><stop offset="0%" stopColor="#6366f1" stopOpacity="0.19"/><stop offset="100%" stopColor="#6366f1" stopOpacity="0"/></radialGradient></defs>
+            <rect x="0" y="0" width="200" height="200" rx="40" fill="#09090b"/>
+            <circle cx="100" cy="100" r="60" fill="url(#auraH)"/>
+            <text x="100" y="118" textAnchor="middle" fontFamily="serif" fontSize="78" fill="#f5f5f4">ॐ</text>
+            <rect x="0" y="0" width="200" height="200" rx="40" fill="none" stroke="#27272a" strokeWidth="1"/>
+          </svg>
+        </div>
         <h1 style={{
           fontFamily: "'Playfair Display', serif", fontSize: "32px", fontWeight: 700,
           background: `linear-gradient(135deg, ${theme.text}, ${theme.accent})`,
