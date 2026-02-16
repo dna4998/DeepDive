@@ -17,8 +17,8 @@ export default async function handler(req, res) {
         payment_method_types: ['card'],
         customer_email: email,
         line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
-        success_url: `${req.headers.origin}/?success=true&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.origin}/?canceled=true`,
+        success_url: `${req.headers.origin}/app.html?success=true&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.headers.origin}/app.html?canceled=true`,
       });
       return res.status(200).json({ url: session.url, sessionId: session.id });
     }

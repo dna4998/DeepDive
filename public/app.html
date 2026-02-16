@@ -138,6 +138,7 @@ function DeepDive() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallEmail, setPaywallEmail] = useState("");
   const [checkingPremium, setCheckingPremium] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -159,6 +160,7 @@ function DeepDive() {
     const sid = params.get("session_id");
     if (sid) { verifyCheckout(sid); window.history.replaceState({}, "", "/app.html");
     }
+    if (params.get("success") === "true" && !sessionId) { setShowSuccess(true); setTimeout(() => setShowSuccess(false), 5000); }
     if (params.get("upgrade") === "true") {
       setShowPaywall(true);
       window.history.replaceState({}, "", "/app.html"); }
@@ -1016,6 +1018,7 @@ function DeepDive() {
         {view === "coach" && renderCoach()}
         {view === "journal" && renderJournal()}
         {renderPaywall()}
+        {renderSuccess()}
         {renderNav()}
       </div>
     </>
