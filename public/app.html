@@ -149,7 +149,7 @@ function DeepDive() {
       const params = new URLSearchParams(window.location.search);
       const sid = params.get("session_id");
       if (sid) { verifyCheckout(sid); }
-      if (params.get("success") === "true") { setIsPremium(true); alert("Premium Activated! AI Coach and Journal are now unlocked."); }
+      if (params.get("success") === "true") { setIsPremium(true); }
       if (params.get("upgrade") === "true") { setShowPaywall(true); }
       if (sid || params.get("success") || params.get("upgrade")) { window.history.replaceState({}, "", "/app.html"); }
     } catch(e) { console.error(e); }
