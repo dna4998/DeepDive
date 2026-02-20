@@ -1,0 +1,312 @@
+<!-- DeepDive PWA Install Banner - Add this right before </body> -->
+<style>
+/* Install Banner Overlay */
+.dd-install-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    animation: ddFadeIn 0.3s ease;
+}
+.dd-install-overlay.active { display: flex; }
+
+@keyframes ddFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ddSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes ddPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+.dd-install-card {
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1040 100%);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 24px;
+    padding: 40px 32px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    animation: ddSlideUp 0.4s ease;
+    box-shadow: 0 20px 60px rgba(99,102,241,0.15);
+}
+.dd-install-card .dd-om {
+    font-size: 64px;
+    margin-bottom: 8px;
+    display: block;
+}
+.dd-install-card h2 {
+    color: #fff;
+    font-size: 24px;
+    margin: 8px 0 4px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.dd-install-card .dd-tagline {
+    color: #a78bfa;
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.dd-install-card .dd-desc {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.dd-install-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    animation: ddPulse 2s ease infinite;
+    transition: transform 0.2s;
+}
+.dd-install-btn:hover { transform: scale(1.02); }
+.dd-install-btn:active { transform: scale(0.98); }
+
+.dd-install-later {
+    display: block;
+    margin-top: 16px;
+    color: #64748b;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.dd-install-later:hover { color: #94a3b8; }
+
+/* Steps for iOS */
+.dd-steps {
+    text-align: left;
+    margin: 16px 0;
+}
+.dd-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(99,102,241,0.1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.dd-step:last-child { border-bottom: none; }
+.dd-step-num {
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.dd-step-text {
+    color: #e2e8f0;
+    font-size: 15px;
+    line-height: 1.4;
+}
+.dd-step-text .dd-icon {
+    display: inline-block;
+    background: rgba(99,102,241,0.2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+/* Floating Install Button (persistent, bottom of screen) */
+.dd-install-float {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 8px 30px rgba(99,102,241,0.4);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.dd-install-float:hover { 
+    transform: translateX(-50%) scale(1.05); 
+    box-shadow: 0 12px 40px rgba(99,102,241,0.5);
+}
+.dd-install-float.visible { display: block; }
+</style>
+
+<!-- Floating Install Button -->
+<button class="dd-install-float" id="ddInstallFloat" onclick="ddShowInstall()">
+    📲 Install DeepDive App
+</button>
+
+<!-- Install Overlay -->
+<div class="dd-install-overlay" id="ddInstallOverlay">
+    <div class="dd-install-card" id="ddInstallCard">
+        <!-- Content populated by JS -->
+    </div>
+</div>
+
+<script>
+(function() {
+    // Detect platform
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    const isMobile = isIOS || isAndroid;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                         window.navigator.standalone === true;
+    
+    // Don't show if already installed as PWA
+    if (isStandalone) return;
+    
+    // Check if user dismissed recently (24 hour cooldown)
+    const dismissed = localStorage.getItem('dd_install_dismissed');
+    if (dismissed && Date.now() - parseInt(dismissed) < 86400000) return;
+    
+    let deferredPrompt = null;
+    
+    // Capture Chrome's beforeinstallprompt (Android)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
+    // Show floating button after 3 seconds on mobile, 5 on desktop
+    const delay = isMobile ? 3000 : 5000;
+    setTimeout(() => {
+        const btn = document.getElementById('ddInstallFloat');
+        if (btn) btn.classList.add('visible');
+    }, delay);
+
+    // Auto-show overlay after 8 seconds on first visit only
+    if (!localStorage.getItem('dd_install_seen')) {
+        setTimeout(() => {
+            ddShowInstall();
+            localStorage.setItem('dd_install_seen', '1');
+        }, 8000);
+    }
+
+    // Make functions globally accessible
+    window.ddShowInstall = function() {
+        const overlay = document.getElementById('ddInstallOverlay');
+        const card = document.getElementById('ddInstallCard');
+        if (!overlay || !card) return;
+
+        if (isIOS) {
+            card.innerHTML = `
+                <span class="dd-om">🕉️</span>
+                <h2>Install DeepDive</h2>
+                <p class="dd-tagline">Reprogram Your Reality</p>
+                <p class="dd-desc">Add DeepDive to your home screen for the full app experience — instant access, offline support, and no app store needed.</p>
+                <div class="dd-steps">
+                    <div class="dd-step">
+                        <div class="dd-step-num">1</div>
+                        <div class="dd-step-text">Tap the <span class="dd-icon">⬆️ Share</span> button below</div>
+                    </div>
+                    <div class="dd-step">
+                        <div class="dd-step-num">2</div>
+                        <div class="dd-step-text">Scroll down and tap <span class="dd-icon">➕ Add to Home Screen</span></div>
+                    </div>
+                    <div class="dd-step">
+                        <div class="dd-step-num">3</div>
+                        <div class="dd-step-text">Tap <span class="dd-icon">Add</span> to confirm</div>
+                    </div>
+                </div>
+                <button class="dd-install-btn" onclick="ddDismiss()">Got it!</button>
+                <button class="dd-install-later" onclick="ddDismiss()">Maybe later</button>
+            `;
+        } else if (deferredPrompt) {
+            // Android with native prompt available
+            card.innerHTML = `
+                <span class="dd-om">🕉️</span>
+                <h2>Install DeepDive</h2>
+                <p class="dd-tagline">Reprogram Your Reality</p>
+                <p class="dd-desc">Get the full app experience — instant access from your home screen, offline support, and push notifications. No app store needed!</p>
+                <button class="dd-install-btn" onclick="ddNativeInstall()">📲 Install Now — It's Free</button>
+                <button class="dd-install-later" onclick="ddDismiss()">Maybe later</button>
+            `;
+        } else {
+            // Desktop or Android without prompt
+            card.innerHTML = `
+                <span class="dd-om">🕉️</span>
+                <h2>Install DeepDive</h2>
+                <p class="dd-tagline">Reprogram Your Reality</p>
+                <p class="dd-desc">Add DeepDive to your device for instant access. Works like a native app — no app store needed!</p>
+                <div class="dd-steps">
+                    <div class="dd-step">
+                        <div class="dd-step-num">1</div>
+                        <div class="dd-step-text">Tap the <span class="dd-icon">⋮ Menu</span> (3 dots) in your browser</div>
+                    </div>
+                    <div class="dd-step">
+                        <div class="dd-step-num">2</div>
+                        <div class="dd-step-text">Tap <span class="dd-icon">📲 Install app</span> or <span class="dd-icon">Add to Home Screen</span></div>
+                    </div>
+                    <div class="dd-step">
+                        <div class="dd-step-num">3</div>
+                        <div class="dd-step-text">Tap <span class="dd-icon">Install</span> to confirm</div>
+                    </div>
+                </div>
+                <button class="dd-install-btn" onclick="ddDismiss()">Got it!</button>
+                <button class="dd-install-later" onclick="ddDismiss()">Maybe later</button>
+            `;
+        }
+
+        overlay.classList.add('active');
+        document.getElementById('ddInstallFloat').classList.remove('visible');
+    };
+
+    window.ddNativeInstall = function() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((result) => {
+                if (result.outcome === 'accepted') {
+                    document.getElementById('ddInstallFloat').classList.remove('visible');
+                }
+                deferredPrompt = null;
+            });
+        }
+        ddDismiss();
+    };
+
+    window.ddDismiss = function() {
+        const overlay = document.getElementById('ddInstallOverlay');
+        if (overlay) overlay.classList.remove('active');
+        localStorage.setItem('dd_install_dismissed', Date.now().toString());
+        // Show floating button again after dismiss
+        setTimeout(() => {
+            const btn = document.getElementById('ddInstallFloat');
+            if (btn && !window.matchMedia('(display-mode: standalone)').matches) {
+                btn.classList.add('visible');
+            }
+        }, 1000);
+    };
+
+    // Close overlay on background click
+    document.getElementById('ddInstallOverlay')?.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) ddDismiss();
+    });
+
+    // Hide everything if app gets installed
+    window.addEventListener('appinstalled', () => {
+        document.getElementById('ddInstallFloat')?.classList.remove('visible');
+        ddDismiss();
+    });
+})();
+</script>
